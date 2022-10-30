@@ -1,5 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
+
 <html>
     <head>
         <meta charset="utf-8">
@@ -7,11 +8,106 @@
         <title></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
+        <link rel="stylesheet" href="{% static 'home/index.css' %}">
+         <link rel="stylesheet" href="{% static 'home/leaflet-measure.css' %}">
+       
+         <link rel="stylesheet" href="{% static 'home/MarkerCluster.Default.css' %}"/>
+         <link  rel="stylesheet" href="{% static 'home/MarkerCluster.css' %}"/>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css"
+        integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14="
+        crossorigin=""/>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+   
+
+
     </head>
-    <body>
-          Hello world from base template
-          <img src="{% static 'home/cecil.png' %}">
-        <script src="" async defer></script>
+    <body>    
+
+          <center><h1>My Map</h1></center>
+          <div id="map"></div>
+
+         <button class="full-screen" onClick=fullScreenView()>Full Screen</button>
+         <button class="print-btn" onClick=fullScreenView()>Print</button>
+         
+         <div class="coordinate"></div>
+        
+         <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js" integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg=" crossorigin=""></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"> </script>
+          <script src="{% static 'home/leaflet.markercluster.js' %}"></script>
+          <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+          <script src="{% static 'home/leaflet.browser.print.min.js' %}"></script>
+          <script src="{% static 'home/leaflet-measure.js' %}"></script>
+          <script src="{% static 'home/data.js' %}"></script>
+          
+          <script>
+        var map = L.map('map').setView([38, 71], 10);
+        map.zoomControl.setPosition('topright')
+        
+
+        
+        var osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        })
+         L.control.scale({position:'topright'}).addTo(map)
+
+
+        var topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            maxZoom: 17,
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        });
+        //fullScreen
+
+        let mapDiv=document.getElementById('map')
+        
+        function fullScreenView(){
+            console.log('fullscreen')
+            mapDiv.requestFullscreen()
+        }
+        //Lat long Display
+         map.on('mousemove',function(e){
+            console.log(e.latlng.lat)
+           $('.coordinate').html(`Latitude: ${e.latlng.lat} Longitude: ${e.latlng.lng}`) 
+        })
+       //print function  
+         $('.print-btn').click(function(){
+              window.print() 
+         })
+
+        L.control.browserPrint().addTo(map)
+
+        L.control.measure({
+            primaryLengthUnit:'kilometers',
+            secondaryLengthUnits:'meter',
+            primaryAreaUnits :'sqmeters',
+            secondaryAreaUnits :undefined             
+             }).addTo(map)
+
+
+       //adding markers from geoJSON DATA
+       markerCluster=L.markerClusterGroup();
+       var markers=L.geoJSON(data,{
+           onEachFeature:function(feature,layer){
+              layer.bindPopup(feature.properties.name)    
+           }
+       })
+       markers.addTo(markerCluster)
+       
+       
+
+
+      L.Control.geocoder().addTo(map);
+
+
+      //map layer
+      var baseMap={
+        osm,topo
+      }
+       var MarkerLayer={
+          markerCluster,
+       }
+       L.control.layers(baseMap,MarkerLayer).addTo(map)
+ 
+</script>
     </body>
 </html>
+
