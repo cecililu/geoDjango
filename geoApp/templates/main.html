@@ -40,8 +40,8 @@
           <script src="{% static 'home/data.js' %}"></script>
           
           <script>
-        var map = L.map('map').setView([38, 71], 10);
-        map.zoomControl.setPosition('topright')
+          var map = L.map('map').setView([38, 71], 10);
+          map.zoomControl.setPosition('topright')
         
 
         
@@ -84,20 +84,17 @@
 
 
        //adding markers from geoJSON DATA
+       
        markerCluster=L.markerClusterGroup();
+       
        var markers=L.geoJSON(data,{
-           onEachFeature:function(feature,layer){
+               onEachFeature:function(feature,layer){
               layer.bindPopup(feature.properties.name)    
            }
        })
        markers.addTo(markerCluster)
        
-       
-
-
       L.Control.geocoder().addTo(map);
-
-
       //map layer
       var baseMap={
         osm,topo
